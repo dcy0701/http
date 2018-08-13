@@ -1,14 +1,14 @@
 import { RequestFailedError} from '../utils'
 
-export default function (next, payload) {
+export default function (next, request) {
     return next().catch((error) => {
         return Promise.reject(error.message ? new RequestFailedError({
             time: new Date(),
-            url: payload.url,
-            data: payload.data,
-            method: payload.method,
+            url: request.url,
+            data: request.data,
+            method: request.method,
             message: error.message,
-            options: payload.options
+            options: request.options
         }) : null)
     })
 }

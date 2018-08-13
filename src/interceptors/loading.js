@@ -1,13 +1,13 @@
-export default function (next, payload) {
-    payload.options.timerId = setTimeout(() => payload.options.loading(true), payload.options.delay)
+export default function (next, request) {
+    request.options.timerId = setTimeout(() => request.options.loading(true), request.options.delay)
 
     return next().then((data) => {
-        payload.options.loading(false)
-        clearTimeout(payload.options.timerId)
+        request.options.loading(false)
+        clearTimeout(request.options.timerId)
         return Promise.resolve(data)
     }).catch((error) => {
-        payload.options.loading(false)
-        clearTimeout(payload.options.timerId)
+        request.options.loading(false)
+        clearTimeout(request.options.timerId)
         return Promise.reject(error)
     })
 }

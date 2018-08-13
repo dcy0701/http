@@ -1,18 +1,34 @@
+import axios from 'axios'
+
 export function noop() {}
 
 export function isFunction(value) {
     return Object.prototype.toString.call(value) === '[object Function]'
 }
 
-export function getRequestId(method, url, data) {
-    if (typeof FormData === 'function' && data instanceof FormData) {
-        data = formDataToPlainObject(data)
+export function getRequest(url, method, data, options) {
+    const source = axios.CancelToken.source()
+
+    url = `${options.root}${url}`
+    options.withCredentials = options.credentials
+
+    if (isFunction(options.headers)) {
+        options.headers = options.headers()
     }
 
-    return `${method.toLowerCase()}${url}${data ? JSON.stringify(data) : ''}`
+    options.cancelToken = source.token
+
+    return {
+        url,
+        data,
+        method,
+        source,
+        options,        
+        id: getRequestId(url, method, data)
+    }
 }
 
-export function compose(context, middleware, payload) {
+export function compose(context, middleware, request) {
     return function (next) {
         let index = -1
         return dispatch(0)
@@ -23,7 +39,7 @@ export function compose(context, middleware, payload) {
             if (i === middleware.length) fn = next
             if (!fn) return Promise.resolve()
             try {
-                return Promise.resolve(fn.call(context, dispatch.bind(null, i + 1), payload))
+                return Promise.resolve(fn.call(context, dispatch.bind(null, i + 1), request))
             } catch (err) {
                 return Promise.reject(err)
             }
@@ -47,6 +63,14 @@ export class RequestFailedError extends Error {
             Error.captureStackTrace(this, this.constructor)
         }
     }
+}
+
+function getRequestId(url, method, data) {
+    if (typeof FormData === 'function' && data instanceof FormData) {
+        data = formDataToPlainObject(data)
+    }
+
+    return `${method.toLowerCase()}${url}${data ? JSON.stringify(data) : ''}`
 }
 
 function formDataToPlainObject(formData, object = {}) {

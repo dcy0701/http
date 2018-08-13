@@ -1,4 +1,4 @@
-export default function(next, payload) {
+export default function(next, request) {
     return next().catch((error) => {
         if (/\d{3}/g.test(error.message)) {
             const status = Number(error.message.match(/\d{3}/g)[0])

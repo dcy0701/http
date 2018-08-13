@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { noop, isFunction, compose, getRequestId, RequestFailedError } from './utils'
+import { noop, isFunction, compose, getRequest, RequestFailedError } from './utils'
 
 const OPTIONS = {
     root: '',
@@ -15,13 +15,13 @@ const OPTIONS = {
 }
 
 export default class Http {
-    TOKENS = {}
-    PENDING = []
-    options = {}
-    middleware = []
-    http = axios.create()
     constructor({ router, ...options } = {}) {
-        this.mountedHttpMethod(this.options = Object.assign({}, OPTIONS, options))
+        this.queue = []
+        this.middleware = []
+        this.http = axios.create()
+        this.options = Object.assign({}, OPTIONS, options)
+
+        this.mountedHttpMethod(this.options)
         this.routerChange(router, this.options.isServer)
     }
     use(fn) {
@@ -33,31 +33,26 @@ export default class Http {
 
         for (let method of METHODS) {
             this[method] = (url = '', data = {}, options = {}) => {
-                options = Object.assign({}, opts, options)
-                options.withCredentials = options.credentials
-
-                if (isFunction(options.headers)) {
-                    options.headers = options.headers()
-                }
-
                 return new Promise((resolve, reject) => {
-                    url = `${options.root}${url}`
+                    const request = getRequest(url, method, data, options = Object.assign({}, opts, options))
+                    
+                    this.queue = [...this.queue, request]
 
-                    compose(this, this.middleware, {
-                        url,
-                        data,
-                        method,
-                        options,
-                        requestId: getRequestId(method, url, data)
-                    })((next, payload) => {
-                        if (/^(post|put|patch)$/.test(payload.method)) {
-                            return this.http[payload.method](payload.url, payload.data, payload.options)
+                    compose(this, this.middleware, request)((next, request) => {
+                        if (/^(post|put|patch)$/.test(request.method)) {
+                            return this.http[request.method](request.url, request.data, request.options)
                         }
                         
-                        if (/^(get|head|delete)$/.test(payload.method)) {
-                            return this.http[payload.method](payload.url, payload.data ? Object.assign({}, { params: payload.data }, payload.options) : payload.options)
+                        if (/^(get|head|delete)$/.test(request.method)) {
+                            return this.http[request.method](request.url, request.data ? Object.assign({}, { params: request.data }, request.options) : request.options)
                         }
-                    }).then((result) => resolve(result)).catch((error) => {
+                    }).then((result) => {
+                        this.queue = this.queue.filter((item) => item.id !== request.id)
+                        
+                        resolve(result)
+                    }).catch((error) => {
+                        this.queue = this.queue.filter((item) => item.id !== request.id)
+
                         if (error) {
                             if (options.isServer || !isFunction(options.error)) {
                                 return reject(error)
@@ -73,11 +68,7 @@ export default class Http {
     routerChange(router, isServer) {
         if (router && !isServer) {
             router.beforeEach((to, from, next) => {
-                Object.keys(this.TOKENS).forEach((key) => {
-                    this.TOKENS[key].cancel()
-                    this.PENDING.splice(this.PENDING.indexOf(key), 1)
-                })
-                
+                this.queue.filter((item) => item.options.abort).forEach((item) => item.source.cancel())
                 next()
             })
         }

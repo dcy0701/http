@@ -1,4 +1,4 @@
-export default function (next, payload) {
+export default function (next, request) {
     return next().catch((error) => {
         const codes = ['ECONNREFUSED', 'ECONNABORTED']
 

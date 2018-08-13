@@ -1,6 +1,6 @@
-export default function (next, payload) {
-    if (payload.method.toUpperCase() === 'GET' && payload.options.timestamp) {
-        payload.url = `${payload.url}${payload.url.indexOf('?') < 0 ? '?' : '&'}t=${Date.now()}`
+export default function (next, request) {
+    if (request.method.toUpperCase() === 'GET' && request.options.timestamp) {
+        request.url = `${request.url}${request.url.indexOf('?') < 0 ? '?' : '&'}t=${Date.now()}`
     }
 
     return next()

@@ -1,5 +1,4 @@
 export error from './error'
-export abort from './abort'
 export status from './status'
 export repeat from './repeat'
 export loading from './loading'

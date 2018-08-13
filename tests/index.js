@@ -24,14 +24,14 @@ describe('http', () => {
         loading: loading,
         credentials: true,
         root: `${location.protocol}//${location.hostname}:9877`,
-        interceptors: [(next, payload) => {
-            if (payload.url.indexOf('interceptors') !== -1) {
+        interceptors: [(next, request) => {
+            if (request.url.indexOf('interceptors') !== -1) {
                 interceptor()
             }
             
             return next()
-        }, (next, payload) => {
-            if (payload.url.indexOf('interceptorsError') !== -1) {
+        }, (next, request) => {
+            if (request.url.indexOf('interceptorsError') !== -1) {
                 throw new Error('interceptors error')
             }
 
