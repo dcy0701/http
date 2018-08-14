@@ -1,10 +1,9 @@
 import Http from './http'
-import { error, status, repeat, loading, timeout, timestamp } from './interceptors'
+import { status, repeat, loading, timeout, timestamp } from './interceptors'
 
 export default function(Vue, { interceptors, ...opts } = {}) {    
     const http = new Http(opts)
 
-    http.use(error)
     http.use(repeat)
     http.use(status)
     http.use(timeout)

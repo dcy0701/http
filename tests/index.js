@@ -182,16 +182,6 @@ describe('http', () => {
         })
     })
 
-    it('isServer', done => {
-        Promise.all([
-            Vue.http.get('/isServer', data),
-            Vue.http.get('/isServer?t=1', data, { isServer: true })
-        ]).catch((err) => {
-            expect(error.callCount).to.equal(2)
-            done()
-        })
-    })
-
     it('interceptors', done => {
         Vue.http.get('/interceptors', data).then((res) => {
             expect(res.status).to.equal(200)

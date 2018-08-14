@@ -1,4 +1,3 @@
-export error from './error'
 export status from './status'
 export repeat from './repeat'
 export loading from './loading'

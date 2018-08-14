@@ -2,6 +2,12 @@ import axios from 'axios'
 
 export function noop() {}
 
+export const isServer = typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]'
+
+export function isError(err) {
+    return Object.prototype.toString.call(err).indexOf('Error') > -1
+}
+
 export function isFunction(value) {
     return Object.prototype.toString.call(value) === '[object Function]'
 }
@@ -10,13 +16,9 @@ export function getRequest(url, method, data, options) {
     const source = axios.CancelToken.source()
 
     url = `${options.root}${url}`
-    options.withCredentials = options.credentials
-
-    if (isFunction(options.headers)) {
-        options.headers = options.headers()
-    }
-
     options.cancelToken = source.token
+    options.headers = toObject(options.headers)
+    options.withCredentials = options.credentials
 
     return {
         url,
@@ -63,6 +65,10 @@ export class RequestFailedError extends Error {
             Error.captureStackTrace(this, this.constructor)
         }
     }
+}
+
+function toObject(obj) {
+    return isFunction(obj) ? obj() : obj
 }
 
 function getRequestId(url, method, data) {

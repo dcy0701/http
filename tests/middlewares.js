@@ -121,13 +121,6 @@ module.exports = [
         }
     },
     function* (next) {
-        if (this.path === '/isServer') {
-            this.status = 504
-        } else {
-            yield next
-        }
-    },
-    function* (next) {
         if (this.path === '/headers') {
             this.body = this.headers.auth
         } else {
