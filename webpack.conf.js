@@ -1,8 +1,11 @@
 const webpack = require('webpack')
 
 module.exports = {
-    mode: 'development',
-    devtool: 'cheap-module-eval-source-map',
+    mode: 'production',
+    devtool: 'source-map',
+    output: {
+        filename: 'index.js'
+    },
     resolve: {
         extensions: ['.js'],
         alias: {
@@ -27,7 +30,7 @@ module.exports = {
                         '@babel/plugin-proposal-export-default-from'
                     ],
                     env: {
-                        development: {
+                        test: {
                             plugins: [
                                 ['istanbul', {
                                     'exclude': ['tests']
@@ -39,10 +42,13 @@ module.exports = {
             }
         }]
     },
+    node: {
+        process: false
+    },
     plugins: [
         new webpack.DefinePlugin({
             'process.env': {
-                NODE_ENV: JSON.stringify('development')
+                NODE_ENV: JSON.stringify('production')
             }
         })
     ]
