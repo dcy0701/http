@@ -4,7 +4,9 @@ module.exports = {
     mode: 'production',
     devtool: 'source-map',
     output: {
-        filename: 'index.js'
+        filename: 'index.js',
+        library: 'vue-http',
+        libraryTarget: 'umd'
     },
     resolve: {
         extensions: ['.js'],
