@@ -1,9 +1,10 @@
 import Vue from 'vue'
+import {HttpMethods} from './index'
 declare module 'vue/types/vue' {
   interface Vue {
-    $http: TypesInterface.Http
+    $http: HttpMethods
   }
   interface VueConstructor {
-    http: TypesInterface.Http
+    http: HttpMethods
   }
 }

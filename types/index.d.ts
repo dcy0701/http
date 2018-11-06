@@ -24,7 +24,7 @@ export interface MethodOptions {
 export interface Interceptor{
     [index: number]: (next: Promise<any>, request: any) => void
 }
-interface InitOptions extends MethodOptions, Interceptor{}
+export interface InitOptions extends MethodOptions, Interceptor{}
 export default interface http {
     install: PluginFunction<{InitOptions}>
 }
