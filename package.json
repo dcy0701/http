@@ -8,6 +8,7 @@
   "main": "dist/index.js",
   "author": "2046",
   "license": "MIT",
+  "types": "types/index.d.ts",
   "bugs": {
     "url": "https://github.com/vue-tools/http/issues"
   },
