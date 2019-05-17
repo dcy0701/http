@@ -53,11 +53,10 @@ export default class Http {
                         this.queue = this.queue.filter((item) => item.id !== request.id)
                         
                         if (isError(error)) {
-                            if (isServer || !isFunction(options.error)) {
-                                return reject(wrap(error, request))
-                            } else {
+                            if (isFunction(options.error)) {
                                 options.error(wrap(error, request))
                             }
+                            reject(wrap(error, request));
                         }
                     })
                 })
